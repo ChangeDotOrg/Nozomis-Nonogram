@@ -12,26 +12,16 @@ function generateGrid(rowLength, colLength) {
   let colThird = colLength > 3 ? Math.ceil(colLength / 3)+1 : 2
   let totalRowLength = rowLength + rowThird
   let totalColLength = colLength + rowThird
-
+  
+  const colOfRows = new Array(Math.ceil(colLength))
   for (let row = 0; row < totalRowLength; row++) {
     data.push( [] )
+    const sideRow = []
 
-    // const addUpNumbers = true
-    // const rowValues = []
-    // const total = 0
-    // while(addUpNumbers){
-    //   const random = Math.ceil(Math.random() * Math.floor(rowLength * (2 / 3)))
-    //   if(total >= rowLength) {
-    //     addUpNumbers = false
-    //     rowValues.push()
-    //     continue
-    //   } else{
-
-    //   }
-    // }
-
+    const sideRowCounter = 0
     for (let col = 0; col < totalColLength; col++) {
         let strokeDasharray
+        const random = Math.floor(Math.random() * 2 )
         let clickDisabled = true
         let group = 'display'
         if(row === 0) {
@@ -62,10 +52,24 @@ function generateGrid(rowLength, colLength) {
           if(col >= colThird) {
             strokeDasharray = `${width},0` 
             clickDisabled = false
+
+            if(random){
+              sideRowCounter+=1
+            } else {
+              if(sideRowCounter){
+                sideRow.push(sideRowCounter)
+                sideRowCounter = 0
+              }
+            }
+            if(col === totalColLength-1){ // Last column in row
+              if(sideRowCounter){
+                sideRow.push(sideRowCounter)
+              }
+            }
           }
         }
+        
 
-        const random = Math.floor(Math.random() * 2 )
         data[row].push({
             x: xPixelPosition,
             y: yPixelPosition,
@@ -78,13 +82,45 @@ function generateGrid(rowLength, colLength) {
             clickDisabled,
         })
 
+        if(row >= rowThird && col >= colThird){
+          if(!Array.isArray(colOfRows[col])) colOfRows[col] = []
+          colOfRows[col].push(data[row][col])
+        }
         xPixelPosition += width
 
       }
 
       xPixelPosition = 1
-      yPixelPosition += height 
-  }
+      yPixelPosition += height
+
+      // Complete adding the number values to the side row
+      const sideRowPushCounter = rowThird - sideRow.length
+      sideRow.forEach((value)=>{
+        data[row][sideRowPushCounter].value = value
+        sideRowPushCounter += 1
+      })
+    }
+
+    // colOfRows.forEach((column)=>{
+    //   let counter = 0
+    //   const keepValues = []
+    //   column.forEach((row)=>{
+    //     console.log(row)
+    //     if(row.selected) counter += 1
+    //     else{
+    //       if(counter){
+    //         keepValues.push(counter)
+    //         counter = 0
+    //       }
+    //     }
+    //   })      
+    //   const sideColumnPushCounter = colThird - keepValues.length
+    //   keepValues.forEach((value)=>{
+    //     // column
+    //   })
+
+    // })
+    // console.log(colOfRows)
 
   return data
 }
@@ -140,21 +176,21 @@ class GameBoard extends Component {
           .attr("y", (d) => (d.y + d.height / 2) )
           .attr("dy", ".35em")
           .text( (d) => {
-
-            return '3'
+            
+            return d.value ? d.value : ''
           })
           .attr("class", "column-text")
         }
-        // else if(d.selected && d.group === 'grid'){
-        //   square.append("text")
-        //   .attr("x",  (d) => (d.x + d.width / 3) )
-        //   .attr("y", (d) => (d.y + d.height / 2) )
-        //   .attr("dy", ".35em")
-        //   .text( (d) => {
-        //     return '@'
-        //   })
-        //   .attr("class", "column-text")
-        // }
+        else if(d.selected && d.group === 'grid'){
+          square.append("text")
+          .attr("x",  (d) => (d.x + d.width / 3) )
+          .attr("y", (d) => (d.y + d.height / 2) )
+          .attr("dy", ".35em")
+          .text( (d) => {
+            return '@'
+          })
+          .attr("class", "column-text")
+        }
       })
   }
 
