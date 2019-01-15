@@ -18,7 +18,7 @@ function generateGrid(rowLength, colLength) {
     data.push( [] )
     const sideRow = []
     
-    const sideRowCounter = 0
+    let sideRowCounter = 0
     for (let col = 0; col < totalColLength; col++) {
         let strokeDasharray
         const random = Math.floor(Math.random() * 2 )
@@ -92,7 +92,7 @@ function generateGrid(rowLength, colLength) {
       yPixelPosition += height
 
       // Complete adding the number values to the side row
-      const sideRowPushCounter = rowThird - sideRow.length
+      let sideRowPushCounter = rowThird - sideRow.length
       sideRow.forEach((value)=>{
         data[row][sideRowPushCounter].value = value
         sideRowPushCounter += 1
@@ -103,7 +103,7 @@ function generateGrid(rowLength, colLength) {
     for (let col = colThird; col < totalColLength; col++) {
       const sideCol = []
       
-      const sideColCounter = 0
+      let sideColCounter = 0
         for (let row = rowThird; row < totalRowLength; row++) {
           if(data[row][col].selected){
             sideColCounter+=1
@@ -120,7 +120,7 @@ function generateGrid(rowLength, colLength) {
           }
       }
 
-      const sideColPushCounter = colThird - sideCol.length
+      let sideColPushCounter = colThird - sideCol.length
       sideCol.forEach((value)=>{
         data[sideColPushCounter][col].value = value
         sideColPushCounter += 1
