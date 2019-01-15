@@ -132,7 +132,13 @@ function generateGrid(rowLength, colLength) {
  
 
 class GameBoard extends Component {
-  
+  constructor(props){
+    super(props)
+    this.state = {
+      answers : false
+    }
+  }
+
   componentDidMount() {
     const rowLength = 10
     const colLength = 10
@@ -146,6 +152,7 @@ class GameBoard extends Component {
     .data(gD)
     .enter().append("g")
     .attr("class", "row")
+
 
     row.selectAll(".square")
       .data((d) => (d) )
@@ -186,22 +193,50 @@ class GameBoard extends Component {
           })
           .attr("class", "column-text")
         }
-        else if(d.selected && d.group === 'grid'){
-          square.append("text")
-          .attr("x",  (d) => (d.x + d.width / 3) )
-          .attr("y", (d) => (d.y + d.height / 2) )
-          .attr("dy", ".35em")
-          .text( (d) => {
-            return '@'
-          })
-          .attr("class", "column-text")
-        }
+        // else if(d.selected && d.group === 'grid'){
+        //   square.append("text")
+        //   .attr("x",  (d) => (d.x + d.width / 3) )
+        //   .attr("y", (d) => (d.y + d.height / 2) )
+        //   .attr("dy", ".35em")
+        //   .text( (d) => {
+        //     return '@'
+        //   })
+        //   .attr("class", "column-text")
+        // }
       })
+    this.setState({row})
+
+  }
+
+  showAnswers(e){
+    const {row,answers} = this.state
+
+    row.selectAll(".square")
+    .data((d) => {
+      return d
+    }).enter()
+     .each(function (d){
+       const square = d3.select(this)
+       if(d.selected && d.group === 'grid'){
+         square.append("text")
+         .attr("x",  (d) => (d.x + d.width / 3) )
+         .attr("y", (d) => (d.y + d.height / 2) )
+         .attr("dy", ".35em")
+         .text( (d) => {
+           return '@'
+         })
+         .attr("class", "column-text")
+       }
+     })
+    this.setState({answers: !answers})
   }
 
   render() {
     return (
-      <div id="board"></div>
+      <div>
+        <button onClick={this.showAnswers.bind(this)}>Answers</button>
+        <div id="board"></div>
+      </div>
     )
   }
 }
