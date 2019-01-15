@@ -3,7 +3,8 @@ import React, { Component } from 'react'
 import * as d3 from 'd3'
 
 function generateGrid(rowLength, colLength) {
-  let data = []
+  const data = []
+
   let xPixelPosition = 1
   let yPixelPosition = 1
   let width = 35
@@ -12,12 +13,11 @@ function generateGrid(rowLength, colLength) {
   let colThird = colLength > 3 ? Math.ceil(colLength / 3)+1 : 2
   let totalRowLength = rowLength + rowThird
   let totalColLength = colLength + rowThird
-  
-  const colOfRows = new Array(Math.ceil(colLength))
+
   for (let row = 0; row < totalRowLength; row++) {
     data.push( [] )
     const sideRow = []
-
+    
     const sideRowCounter = 0
     for (let col = 0; col < totalColLength; col++) {
         let strokeDasharray
@@ -26,28 +26,31 @@ function generateGrid(rowLength, colLength) {
         let group = 'display'
         if(row === 0) {
           if(col === 0) {
-            group = 'top'
+            group = 'topEmpty'
             strokeDasharray = `${width},${width*2}`
           }
           if(col > 0 && col < colThird) {
-            group = 'top'
+            group = 'topEmpty'
             strokeDasharray = `${width},${width*3}`
           }
           if(col >= colThird) strokeDasharray = `${width*2},${width}`
         }
         if(row > 0 && row < rowThird) {
           if(col === 0) {
-            group = 'top'
+            group = 'topEmpty'
             strokeDasharray = `0,${width*3},${width}`
           } 
           if(col > 0 && col < colThird) {
-            group = 'top'
+            group = 'topEmpty'
             strokeDasharray = `0,${width*4}`
           }
           if(col >= colThird) strokeDasharray = `0,${width},${width},${width},${width}`
         }
         if(row >= rowThird) {
-          if(col === 0)  strokeDasharray = `${width},${width},${width*2}`
+          if(col === 0)  {
+            group = 'topEmpty'
+            strokeDasharray = `${width},${width},${width*2}`
+          }
           if(col > 0 && col < colThird) strokeDasharray = `${width}`
           if(col >= colThird) {
             strokeDasharray = `${width},0` 
@@ -69,7 +72,6 @@ function generateGrid(rowLength, colLength) {
           }
         }
         
-
         data[row].push({
             x: xPixelPosition,
             y: yPixelPosition,
@@ -82,10 +84,6 @@ function generateGrid(rowLength, colLength) {
             clickDisabled,
         })
 
-        if(row >= rowThird && col >= colThird){
-          if(!Array.isArray(colOfRows[col])) colOfRows[col] = []
-          colOfRows[col].push(data[row][col])
-        }
         xPixelPosition += width
 
       }
@@ -101,26 +99,33 @@ function generateGrid(rowLength, colLength) {
       })
     }
 
-    // colOfRows.forEach((column)=>{
-    //   let counter = 0
-    //   const keepValues = []
-    //   column.forEach((row)=>{
-    //     console.log(row)
-    //     if(row.selected) counter += 1
-    //     else{
-    //       if(counter){
-    //         keepValues.push(counter)
-    //         counter = 0
-    //       }
-    //     }
-    //   })      
-    //   const sideColumnPushCounter = colThird - keepValues.length
-    //   keepValues.forEach((value)=>{
-    //     // column
-    //   })
+    // Use values to loop through the 2d array by column instead of row to add top values
+    for (let col = colThird; col < totalColLength; col++) {
+      const sideCol = []
+      
+      const sideColCounter = 0
+        for (let row = rowThird; row < totalRowLength; row++) {
+          if(data[row][col].selected){
+            sideColCounter+=1
+          } else {
+            if(sideColCounter){
+              sideCol.push(sideColCounter)
+              sideColCounter = 0
+            }
+          }
+          if(row === totalRowLength-1){ // Last column in row
+            if(sideColCounter){
+              sideCol.push(sideColCounter)
+            }
+          }
+      }
 
-    // })
-    // console.log(colOfRows)
+      const sideColPushCounter = colThird - sideCol.length
+      sideCol.forEach((value)=>{
+        data[sideColPushCounter][col].value = value
+        sideColPushCounter += 1
+      })
+    }
 
   return data
 }
