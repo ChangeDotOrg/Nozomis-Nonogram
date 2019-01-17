@@ -48,6 +48,8 @@ class GameBoard extends Component {
       .on('contextmenu', function (d){
         d3.event.preventDefault()
         if(d.clickDisabled) return
+        // need to select the lead element to add to not this div, parent div
+        console.log(this)
         const square = d3.select(this)
         if(!d.rightClick) {
           console.log(square)
@@ -60,7 +62,7 @@ class GameBoard extends Component {
 
             return 'X'
           })
-          .attr("class", "x-addon")
+          // .attr("class", "x-addon")
         }else {
           d.rightClick = false
           // square.
