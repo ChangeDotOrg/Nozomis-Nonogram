@@ -41,51 +41,43 @@ class GameBoard extends Component {
       .style("stroke", "#222")
       .on('click', function(d, e) {
         if(d.clickDisabled) return
-        d.click ++
-        if ((d.click)%2 === 0 ) d3.select(this).style("fill","#fff")
-        if ((d.click)%2 === 1 ) d3.select(this).style("fill","#2C93E8")
-      })
-      .on('contextmenu', function (d){
-        d3.event.preventDefault()
-        if(d.clickDisabled) return
-        // need to select the lead element to add to not this div, parent div
-        console.log(this)
-        const square = d3.select(this)
-        if(!d.rightClick) {
-          console.log(square)
-          d.rightClick = true
-          square.append("text")
-          .attr("x",  (d) => (d.x + d.width / 3) )
-          .attr("y", (d) => (d.y + d.height / 2) )
-          .attr("dy", ".35em")
-          .text( (d) => {
-
-            return 'X'
-          })
-          // .attr("class", "x-addon")
-        }else {
-          d.rightClick = false
-          // square.
+        d.click++
+        if ((d.click)%3 === 0 ) d.text.text( () => '')
+        if ((d.click)%3 === 1 ) d3.select(this).style("fill","#2C93E8")
+        if((d.click)%3 === 2) {
+          d3.select(this).style("fill", "#fff")
+          d.text.text( () => 'X')
         }
       })
 
     row.selectAll(".square")
-    .data((d) => {
-       return d
-    }).enter()
+    .data((d) => (d))
+    .enter()
       .each(function (d){
         const square = d3.select(this)
-
+        d.text = square
         if(d.group === 'display'){
           square.append("text")
           .attr("x",  (d) => (d.x + d.width / 3) )
           .attr("y", (d) => (d.y + d.height / 2) )
           .attr("dy", ".35em")
           .text( (d) => {
-            
             return d.value ? d.value : ''
           })
           .attr("class", "column-text")
+        } 
+        else if(d.group === 'grid'){
+          d.text = square.append("text")
+          d.text
+          .attr("x",  (d) => (d.x + d.width / 3) )
+          .attr("y", (d) => (d.y + d.height / 2) )
+          .attr("dy", ".35em")
+          .text( () => '')
+          .attr("class", "column-text")
+          .on('click', function(d){
+            d.click++
+            d.text.text( d => '')
+          })
         }
       })
 
