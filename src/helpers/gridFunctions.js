@@ -73,7 +73,7 @@ export default function generateGrid(rowLength, colLength) {
             y: yPixelPosition,
             click: 0,
             group: clickDisabled ? group : 'grid',
-            selected: random ? true : false,
+            mustBeFilled: random ? true : false,
             width,
             height,
             strokeDasharray,
@@ -101,7 +101,7 @@ export default function generateGrid(rowLength, colLength) {
       
       let sideColCounter = 0
         for (let row = rowThird; row < totalRowLength; row++) {
-          if(data[row][col].selected){
+          if(data[row][col].mustBeFilled){
             sideColCounter+=1
           } else {
             if(sideColCounter){

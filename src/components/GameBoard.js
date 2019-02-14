@@ -25,32 +25,43 @@ class GameBoard extends Component {
     .enter().append("g")
     .attr("class", "row")
 
-    row.selectAll(".square")
+    const gridSquares = row.selectAll(".square")
+
+    gridSquares
       .data((d) => (d) )
       .enter()
-      .append("rect")
-      .attr("x", (d) => (d.x) )
-      .attr("y", (d) => (d.y) )
-      .attr("width", (d) => (d.width) )
-      .attr("height", (d) => (d.height) )
-      .style("stroke-dasharray", (d) => {
-        if(d.strokeDasharray) return d.strokeDasharray
-        return '0, 140'
-      })
-      .style("fill", "#fff")
-      .style("stroke", "#222")
-      .on('click', function(d, e) {
-        if(d.clickDisabled) return
-        d.click++
-        if ((d.click)%3 === 0 ) d.text.text( () => '')
-        if ((d.click)%3 === 1 ) d3.select(this).style("fill","#2C93E8")
-        if((d.click)%3 === 2) {
-          d3.select(this).style("fill", "#fff")
-          d.text.text( () => 'X')
-        }
-      })
+        .each(function(d){
+          const square = d3.select(this)
+          d.rect = square
+          square.append("rect")
+          .attr("x", (d) => (d.x) )
+          .attr("y", (d) => (d.y) )
+          .attr("width", (d) => (d.width) )
+          .attr("height", (d) => (d.height) )
+          .style("stroke-dasharray", (d) => {
+            if(d.strokeDasharray) return d.strokeDasharray
+            return '0, 140'
+          })
+          .style("fill", "#fff")
+          .style("stroke", "#222")
+          .on('click', function(d, e) {
+            if(d.clickDisabled) return
+            d.click++
+            if ((d.click)%3 === 0 ) {
+              if(!d.text) return
+              d3.select(this).style("fill", "#fff")
+              d.text.text( () => '')
+            }
+            if ((d.click)%3 === 1 ) d3.select(this).style("fill","#2C93E8")
+            if((d.click)%3 === 2) {
+              d3.select(this).style("fill", "#fff")
+              if(!d.text) return
+              d.text.text( () => 'X')
+            }
+          })
+        })
 
-    row.selectAll(".square")
+    gridSquares
     .data((d) => (d))
     .enter()
       .each(function (d){
@@ -81,36 +92,61 @@ class GameBoard extends Component {
         }
       })
 
-    this.setState({row})
+    this.setState({gridSquares})
   }
 
   showAnswers(e){
-    const {row,answers} = this.state
+    const {gridSquares,answers} = this.state
 
-    row.selectAll(".square")
-    .data((d) => {
-      return d
-    }).enter()
-     .each(function (d){
-       const square = d3.select(this)
-       if(d.selected && d.group === 'grid'){
-         square.append("text")
-         .attr("x",  (d) => (d.x + d.width / 3) )
-         .attr("y", (d) => (d.y + d.height / 2) )
-         .attr("dy", ".35em")
-         .text( (d) => {
-           return '@'
-         })
-         .attr("class", "column-text")
-       }
-     })
-    this.setState({answers: !answers})
+    gridSquares
+    .data(d => d)
+    .enter()
+    .each(function (d){
+      if(d.group !== 'grid') return  
+      console.log(d.rect)
+      console.log(d.text)
+      if(!d.mustBeFilled){
+        // d3.select(d.rect).style("fill", "#fff")
+        d.text.text(()=> '')
+        d.click = 0
+      } else if(d.mustBeFilled){
+        // d3.select(d.rect).style("fill","#2C93E8")
+        d.text.text(()=> 'X')
+        d.click = 1
+      }
+
+    })
+
+    // this.setState({answers: !answers})
+  }
+
+  checkIfCompleted(){
+
+    const {gridSquares, answers} = this.state
+
+    let result = true
+
+    gridSquares
+      .data(d=> d)
+      .enter()
+      .each(function (d){
+        if(d.group === 'grid'){
+          if(!d.mustBeFilled && (d.click)%3 === 1) result = false
+          else if(d.mustBeFilled && (d.click)%3 === 0 || d.mustBeFilled && (d.click)%3 === 2) result = false
+        }
+      })
+      if(!result) alert('Not Completed yet continue tying.')
+      else alert('Completed yay!')
+      return result
   }
 
   render() {
     return (
-      // <button onClick={this.showAnswers.bind(this)}>Answers</button>
-        <div id="board"></div>
+      <div>
+        <button onClick={this.showAnswers.bind(this)}>Cheat</button>
+        <button onClick={this.checkIfCompleted.bind(this)}>Check For Completion</button>
+          <div id="board"></div>
+      </div>
     )
   }
 }
