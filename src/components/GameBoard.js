@@ -12,7 +12,7 @@ class GameBoard extends Component {
   }
 
   componentDidMount() {
-    const rowLength = 10
+    const rowLength = 11
     const colLength = 10
     const gD = generateGrid(rowLength, colLength)
     const grid = d3.select("#board")
@@ -32,8 +32,8 @@ class GameBoard extends Component {
       .enter()
         .each(function(d){
           const square = d3.select(this)
-          d.rect = square
-          square.append("rect")
+
+           d.rect = square.append("rect")
           .attr("x", (d) => (d.x) )
           .attr("y", (d) => (d.y) )
           .attr("width", (d) => (d.width) )
@@ -48,49 +48,41 @@ class GameBoard extends Component {
             if(d.clickDisabled) return
             d.click++
             if ((d.click)%3 === 0 ) {
-              if(!d.text) return
+              if(!d.gridText) return
               d3.select(this).style("fill", "#fff")
-              d.text.text( () => '')
+              d.gridText.text( () => '')
             }
             if ((d.click)%3 === 1 ) d3.select(this).style("fill","#2C93E8")
             if((d.click)%3 === 2) {
               d3.select(this).style("fill", "#fff")
-              if(!d.text) return
-              d.text.text( () => 'X')
+              if(!d.gridText) return
+              d.gridText.text( () => 'X')
             }
           })
-        })
 
-    gridSquares
-    .data((d) => (d))
-    .enter()
-      .each(function (d){
-        const square = d3.select(this)
-        d.text = square
-        if(d.group === 'display'){
-          square.append("text")
-          .attr("x",  (d) => (d.x + d.width / 3) )
-          .attr("y", (d) => (d.y + d.height / 2) )
-          .attr("dy", ".35em")
-          .text( (d) => {
-            return d.value ? d.value : ''
-          })
-          .attr("class", "column-text")
-        } 
-        else if(d.group === 'grid'){
-          d.text = square.append("text")
-          d.text
-          .attr("x",  (d) => (d.x + d.width / 3) )
-          .attr("y", (d) => (d.y + d.height / 2) )
-          .attr("dy", ".35em")
-          .text( () => '')
-          .attr("class", "column-text")
-          .on('click', function(d){
-            d.click++
-            d.text.text( d => '')
-          })
-        }
-      })
+          if(d.group === 'display'){
+            d.displayText = square.append("text")
+            .attr("x",  (d) => (d.x + d.width / 3) )
+            .attr("y", (d) => (d.y + d.height / 2) )
+            .attr("dy", ".35em")
+            .text( (d) => {
+              return d.value ? d.value : ''
+            })
+            .attr("class", "column-text")
+          } 
+          else if(d.group === 'grid'){
+            d.gridText = square.append("text")
+            .attr("x",  (d) => (d.x + d.width / 3) )
+            .attr("y", (d) => (d.y + d.height / 2) )
+            .attr("dy", ".35em")
+            .text( () => '')
+            .attr("class", "column-text")
+            .on('click', function(d){
+              d.click++
+              d.gridText.text( d => '')
+            })
+          }
+        })
 
     this.setState({gridSquares})
   }
@@ -102,22 +94,19 @@ class GameBoard extends Component {
     .data(d => d)
     .enter()
     .each(function (d){
-      if(d.group !== 'grid') return  
-      console.log(d.rect)
-      console.log(d.text)
+      if(d.group !== 'grid') return
       if(!d.mustBeFilled){
-        // d3.select(d.rect).style("fill", "#fff")
-        d.text.text(()=> '')
+        d.rect.style("fill", "#fff")
+        d.gridText.text(()=> '')
         d.click = 0
       } else if(d.mustBeFilled){
-        // d3.select(d.rect).style("fill","#2C93E8")
-        d.text.text(()=> 'X')
+        d.rect.style("fill","#2C93E8")
+        d.gridText.text(()=> '')
         d.click = 1
       }
 
     })
 
-    // this.setState({answers: !answers})
   }
 
   checkIfCompleted(){
